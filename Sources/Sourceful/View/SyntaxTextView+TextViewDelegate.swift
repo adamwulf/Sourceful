@@ -15,6 +15,10 @@ import Foundation
 #endif
 
 extension SyntaxTextView: InnerTextViewDelegate {
+    func handleInsertOf(text: String, selection: NSRange) -> Bool {
+        delegate?.handleInsertOf(text: text, selection: selection) ?? false
+    }
+
 	
 	func didUpdateCursorFloatingState() {
 		

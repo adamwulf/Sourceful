@@ -17,6 +17,7 @@ import CoreGraphics
 
 protocol InnerTextViewDelegate: class {
 	func didUpdateCursorFloatingState()
+    func handleInsertOf(text: String, selection: NSRange) -> Bool
 }
 
 class InnerTextView: TextView {
@@ -151,7 +152,35 @@ class InnerTextView: TextView {
 //		}
 //
 //	}
-	
+
+    private var isInsertingText = false
+    override func insertText(_ string: Any, replacementRange: NSRange) {
+        guard !isInsertingText else { return }
+        isInsertingText = true
+        undoManager?.beginUndoGrouping()
+
+        let string: String = {
+            if let string = string as? String {
+                return string
+            } else if let string = string as? NSAttributedString {
+                return string.string
+            }
+            return ""
+        }()
+
+        if !(innerDelegate?.handleInsertOf(text: string, selection: replacementRange) ?? false) {
+            super.insertText(string, replacementRange: replacementRange)
+        }
+
+        isInsertingText = false
+    }
+
+    override func replaceCharacters(in range: NSRange, with string: String) {
+        if self.shouldChangeText(in: range, replacementString: string) {
+            super.replaceCharacters(in: range, with: string)
+        }
+    }
+
 	#if os(iOS)
 	
 	override func caretRect(for position: UITextPosition) -> CGRect {
