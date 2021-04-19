@@ -178,6 +178,7 @@ class InnerTextView: TextView {
         }
 
         isInsertingText = false
+        undoManager?.endUndoGrouping()
     }
 
     override func replaceCharacters(in range: NSRange, with string: String) {
