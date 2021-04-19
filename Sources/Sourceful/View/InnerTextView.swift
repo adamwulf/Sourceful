@@ -161,8 +161,6 @@ class InnerTextView: TextView {
             super.insertText(string, replacementRange: replacementRange)
             return
         }
-        isInsertingText = true
-        undoManager?.beginUndoGrouping()
 
         let string: String = {
             if let string = string as? String {
@@ -173,12 +171,13 @@ class InnerTextView: TextView {
             return ""
         }()
 
+        isInsertingText = true
+
         if !(innerDelegate?.handleInsertOf(text: string, selection: replacementRange) ?? false) {
             super.insertText(string, replacementRange: replacementRange)
         }
 
         isInsertingText = false
-        undoManager?.endUndoGrouping()
     }
 
     override func replaceCharacters(in range: NSRange, with string: String) {
