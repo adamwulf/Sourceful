@@ -66,7 +66,9 @@ extension SyntaxTextView {
 		colorTextView(lexerForSource: { (source) -> Lexer in
 			return delegate.lexerForSource(source)
 		})
-		
+
+        self.delegate?.didChangeSelectedRange(self, selectedRange: textView.selectedRange)
+
 		previousSelectedRange = textView.selectedRange
 		
 	}
@@ -147,9 +149,28 @@ extension SyntaxTextView {
 			
 			let text = replacementString ?? ""
 			
-			return self.shouldChangeText(insertingText: text)
+            return self.shouldChangeText(in: affectedCharRange, insertingText: text)
 		}
-		
+
+        open func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+            return delegate?.textView(self, doCommandBy: commandSelector) ?? false
+        }
+
+        open func textView(_ textView: NSTextView,
+                           completions words: [String],
+                           forPartialWordRange charRange: NSRange,
+                           indexOfSelectedItem index: UnsafeMutablePointer<Int>?) -> [String] {
+            return delegate?.textView(self, completions: words, forPartialWordRange: charRange, indexOfSelectedItem: index) ?? words
+        }
+
+        open func textView(_ textView: NSTextView,
+                           willChangeSelectionFromCharacterRange oldSelectedCharRange: NSRange,
+                           toCharacterRange newSelectedCharRange: NSRange) -> NSRange {
+            return delegate?.textView(self,
+                                      willChangeSelectionFromCharacterRange: oldSelectedCharRange,
+                                      toCharacterRange: newSelectedCharRange) ?? newSelectedCharRange
+        }
+
 		open func textDidChange(_ notification: Notification) {
 			guard let textView = notification.object as? NSTextView, textView == self.textView else {
 				return
@@ -158,6 +179,7 @@ extension SyntaxTextView {
 			didUpdateText()
 			
 		}
+
 		
 		func didUpdateText() {
 			
@@ -191,14 +213,14 @@ extension SyntaxTextView {
 		
 		open func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
 			
-			return self.shouldChangeText(insertingText: text)
+            return self.shouldChangeText(in: range, insertingText: text)
 		}
 		
 		public func textViewDidBeginEditing(_ textView: UITextView) {
 			// pass the message up to our own delegate
 			delegate?.textViewDidBeginEditing(self)
 		}
-		
+
 		open func textViewDidChange(_ textView: UITextView) {
 			
 			didUpdateText()
@@ -233,9 +255,8 @@ extension SyntaxTextView {
 
 extension SyntaxTextView {
 
-	func shouldChangeText(insertingText: String) -> Bool {
-
-		let selectedRange = textView.selectedRange
+	func shouldChangeText(in selectedRange: NSRange, insertingText: String) -> Bool {
+        guard delegate?.textView(self, shouldChangeTextIn: selectedRange, replacementString: insertingText) ?? true else { return false }
 
 		let origInsertingText = insertingText
 

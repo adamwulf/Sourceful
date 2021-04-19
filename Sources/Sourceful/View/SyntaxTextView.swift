@@ -25,6 +25,18 @@ public protocol SyntaxTextViewDelegate: class {
 
     func lexerForSource(_ source: String) -> Lexer
 
+    func textView(_ syntaxTextView: SyntaxTextView, doCommandBy commandSelector: Selector) -> Bool
+
+    func textView(_ syntaxTextView: SyntaxTextView,
+                       completions words: [String],
+                       forPartialWordRange charRange: NSRange,
+                       indexOfSelectedItem index: UnsafeMutablePointer<Int>?) -> [String]
+
+    func textView(_ syntaxTextView: SyntaxTextView,
+                       willChangeSelectionFromCharacterRange oldSelectedCharRange: NSRange,
+                       toCharacterRange newSelectedCharRange: NSRange) -> NSRange
+
+    func textView(_ syntaxTextView: SyntaxTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool
 }
 
 // Provide default empty implementations of methods that are optional.
@@ -34,6 +46,27 @@ public extension SyntaxTextViewDelegate {
     func didChangeSelectedRange(_ syntaxTextView: SyntaxTextView, selectedRange: NSRange) { }
 
     func textViewDidBeginEditing(_ syntaxTextView: SyntaxTextView) { }
+
+    func textView(_ syntaxTextView: SyntaxTextView, doCommandBy commandSelector: Selector) -> Bool {
+        return false
+    }
+
+    func textView(_ syntaxTextView: SyntaxTextView,
+                  completions words: [String],
+                  forPartialWordRange charRange: NSRange,
+                  indexOfSelectedItem index: UnsafeMutablePointer<Int>?) -> [String] {
+        return words
+    }
+
+    func textView(_ syntaxTextView: SyntaxTextView,
+                  willChangeSelectionFromCharacterRange oldSelectedCharRange: NSRange,
+                  toCharacterRange newSelectedCharRange: NSRange) -> NSRange {
+        return newSelectedCharRange
+    }
+
+    func textView(_ syntaxTextView: SyntaxTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
+        return true
+    }
 }
 
 struct ThemeInfo {
@@ -310,7 +343,7 @@ open class SyntaxTextView: _View {
     // MARK: -
 
     public func insertText(_ text: String) {
-        if shouldChangeText(insertingText: text) {
+        if shouldChangeText(in: contentTextView.selectedRange(), insertingText: text) {
             #if os(macOS)
             contentTextView.insertText(text, replacementRange: contentTextView.selectedRange())
             #else
