@@ -123,6 +123,7 @@ public struct SourceCodeTextEditor: _ViewRepresentable {
 extension SourceCodeTextEditor {
     
     public class Coordinator: SyntaxTextViewDelegate {
+
         let parent: SourceCodeTextEditor
         var wrappedView: SyntaxTextView!
         

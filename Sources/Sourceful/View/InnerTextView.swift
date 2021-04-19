@@ -155,7 +155,12 @@ class InnerTextView: TextView {
 
     private var isInsertingText = false
     override func insertText(_ string: Any, replacementRange: NSRange) {
-        guard !isInsertingText else { return }
+        guard
+            !isInsertingText
+        else {
+            super.insertText(string, replacementRange: replacementRange)
+            return
+        }
         isInsertingText = true
         undoManager?.beginUndoGrouping()
 

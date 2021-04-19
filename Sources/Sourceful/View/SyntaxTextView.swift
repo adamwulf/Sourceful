@@ -17,7 +17,7 @@ import UIKit
 
 public protocol SyntaxTextViewDelegate: class {
 
-    func handleInsertOf(text: String, selection: NSRange) -> Bool
+    func handleInsertOf(_ syntaxTextView: SyntaxTextView, text: String, selection: NSRange) -> Bool
 
     func didChangeText(_ syntaxTextView: SyntaxTextView)
 
@@ -44,7 +44,7 @@ public protocol SyntaxTextViewDelegate: class {
 // Provide default empty implementations of methods that are optional.
 public extension SyntaxTextViewDelegate {
 
-    func handleInsertOf(text: String, selection: NSRange) -> Bool {
+    func handleInsertOf(_ syntaxTextView: SyntaxTextView, text: String, selection: NSRange) -> Bool {
         return false
     }
 

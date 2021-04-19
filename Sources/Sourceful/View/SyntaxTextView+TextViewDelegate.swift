@@ -16,7 +16,7 @@ import Foundation
 
 extension SyntaxTextView: InnerTextViewDelegate {
     func handleInsertOf(text: String, selection: NSRange) -> Bool {
-        delegate?.handleInsertOf(text: text, selection: selection) ?? false
+        delegate?.handleInsertOf(self, text: text, selection: selection) ?? false
     }
 
 	
